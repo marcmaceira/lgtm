@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 
@@ -34,11 +35,37 @@ func runInit(args []string) int {
 }
 
 func runConfig(args []string) int {
+	fs := flag.NewFlagSet("lgtm config", flag.ContinueOnError)
+	commitInstructions := fs.String("commit-instructions", "", "replace commit generation instructions (empty clears them)")
+	prInstructions := fs.String("pr-instructions", "", "replace PR generation instructions (empty clears them)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "lgtm:", err)
 		return 1
 	}
+
+	changed := false
+	fs.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "commit-instructions":
+			cfg.CommitInstructions = *commitInstructions
+			changed = true
+		case "pr-instructions":
+			cfg.PRInstructions = *prInstructions
+			changed = true
+		}
+	})
+	if changed {
+		if err := config.Save(cfg); err != nil {
+			fmt.Fprintln(os.Stderr, "lgtm: writing config:", err)
+			return 1
+		}
+	}
+
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "lgtm:", err)

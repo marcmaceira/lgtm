@@ -57,6 +57,17 @@ Flags available on both `commit` and `pr`:
 `lgtm init` writes `~/.config/lgtm/config.json` plus editable prompt
 templates (`commit.tmpl`, `pr.tmpl`) to the same directory.
 
+Print the effective configuration, replace instructions, or clear them:
+
+```sh
+lgtm config
+lgtm config --commit-instructions "Use Conventional Commits"
+lgtm config --commit-instructions ""
+```
+
+Updating instructions replaces the previous value and works with existing
+configuration files; rerunning `lgtm init` is not required.
+
 ```jsonc
 {
   "backend": "claude",              // default backend: "claude" or "codex"

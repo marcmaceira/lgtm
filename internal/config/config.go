@@ -20,8 +20,8 @@ type Config struct {
 
 	// CommitInstructions/PRInstructions are free-text style rules appended
 	// to the generation prompts (e.g. "use Conventional Commits").
-	CommitInstructions string `json:"commitInstructions,omitempty"`
-	PRInstructions     string `json:"prInstructions,omitempty"`
+	CommitInstructions string `json:"commitInstructions"`
+	PRInstructions     string `json:"prInstructions"`
 
 	// DefaultBase is the base branch used for `lgtm pr` when not overridden
 	// with --base and no remote HEAD can be detected.

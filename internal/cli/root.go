@@ -12,12 +12,16 @@ Usage:
   lgtm commit [flags]     Generate a commit message from staged changes and commit
   lgtm pr [flags]         Generate a PR title/body from the commit range and open it
   lgtm init               Write default config + prompt templates to ~/.config/lgtm
-  lgtm config             Print the effective configuration
+  lgtm config [flags]     Print or update the effective configuration
 
 Global flags (commit/pr):
   --backend <claude|codex>   Override the configured backend
   --model <name>              Override the configured model
   --dry-run                   Print the generated content without acting on it
+
+Config flags:
+  --commit-instructions <text>  Replace commit instructions (empty clears them)
+  --pr-instructions <text>      Replace PR instructions (empty clears them)
 `
 
 func Run(args []string) int {
