@@ -36,7 +36,7 @@ func (ClaudeBackend) Generate(ctx context.Context, prompt, jsonSchema, model str
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("claude: %w: %s", err, strings.TrimSpace(stderr.String()))
+		return nil, claudeRunError(err, stdout.Bytes(), stderr.Bytes())
 	}
 
 	var env claudeEnvelope
@@ -50,4 +50,20 @@ func (ClaudeBackend) Generate(ctx context.Context, prompt, jsonSchema, model str
 		return env.StructuredOutput, nil
 	}
 	return []byte(env.Result), nil
+}
+
+func claudeRunError(runErr error, stdout, stderr []byte) error {
+	var env claudeEnvelope
+	if err := json.Unmarshal(stdout, &env); err == nil && env.IsError && strings.TrimSpace(env.Result) != "" {
+		return fmt.Errorf("claude: generation failed: %s", strings.TrimSpace(env.Result))
+	}
+
+	detail := strings.TrimSpace(string(stderr))
+	if detail == "" {
+		detail = strings.TrimSpace(string(stdout))
+	}
+	if detail == "" {
+		return fmt.Errorf("claude: %w", runErr)
+	}
+	return fmt.Errorf("claude: %w: %s", runErr, detail)
 }
